@@ -1,0 +1,14 @@
+[package]
+name = "test_suite_rs"
+version = "0.1.0"
+edition = "2021"
+description = "Provides a macro to create a test suite with a setup and teardown function"
+documentation = "https://docs.rs/test_suite"
+repository = "https://github.com/Aeradriel/test_suite_rs"
+homepage = "https://github.com/Aeradriel/test_suite_rs"
+readme = "README.md"
+license-file = "LICENSE"
+keywords = ["test", "setup", "teardown", "api"]
+categories = ["development-tools", "development-tools::testing"]
+
+[dependencies]
