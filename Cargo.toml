@@ -1,6 +1,6 @@
 [package]
 name = "test_suite_rs"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "Provides a macro to create a test suite with a setup and teardown function"
 documentation = "https://docs.rs/test_suite"
