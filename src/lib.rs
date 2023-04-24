@@ -128,7 +128,7 @@ macro_rules! test_suite {
         - name: $mod_name:ident
         $(- setup: $setup:ident $(($($arg_type:ty),+))?)?
         $(- teardown: $teardown:ident)?
-        $(test $test_name:ident$(($($arg_name:ident),+))? $test:block)*
+        $(test $test_name:ident$(($($($arg_name:ident)*),+))? $test:block)*
     ) => {
         mod $mod_name {
             use super::*;
@@ -147,7 +147,7 @@ macro_rules! test_suite {
                 #[test]
                 fn $test_name() {
                     // Assign the return value of the setup function to the given names (if specified)
-                    $(let ($($arg_name),*) =)? __internal_test_suite_setup();
+                    $(let ($($($arg_name)*),*) =)? __internal_test_suite_setup();
                     // Running test code
                     $test
                     // Running teardown function
@@ -192,7 +192,18 @@ mod test {
         - teardown: teardown
 
         test creates_the_test {
-            assert!(true);
+            assert_eq!(1, 1);
+        }
+    }
+
+    test_suite! {
+        - name: test_suite_mutability
+        - setup: setup(i32, &'static str)
+
+        test creates_the_test(mut nbr, _string) {
+            assert_eq!(nbr, 43);
+            nbr = 100;
+            assert_eq!(nbr, 100);
         }
     }
 }
