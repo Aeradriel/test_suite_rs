@@ -54,7 +54,6 @@
 //!     }
 //! }
 
-
 /// Creates a test suite with a setup and teardown function.
 /// Each test block generates a separate test function that will run
 /// setup and teardown functions if provided.
