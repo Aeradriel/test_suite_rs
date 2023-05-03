@@ -112,35 +112,67 @@
 #[macro_export]
 macro_rules! test_suite {
     (
+        - name: $suite_name:ident
         $(- setup: $setup:ident $(($($arg_type:ty),+))?)?
         $(- teardown: $teardown:ident)?
-        $(test $test_name:ident$($($arg_name:ident),+)? $test:block)*
+        $(use $top_level_imports:ident::*;)?
+        $(mod $mod_name:ident {
+            $(use $mod_imports:ident::*;)?
+            $(test $test_name:ident$(($($($arg_name:ident)*),+))? $test:block)*
+        })*
     ) => {
-        test_suite! {
-            - name: test
-            - setup: $setup
-            - teardown: $teardown
-
-            $($test_name $test)*
-        };
-    };
-    (
-        - name: $mod_name:ident
-        $(- setup: $setup:ident $(($($arg_type:ty),+))?)?
-        $(- teardown: $teardown:ident)?
-        $(test $test_name:ident$(($($($arg_name:ident)*),+))? $test:block)*
-    ) => {
-        mod $mod_name {
-            use super::*;
+        mod $suite_name {
+            $(use super::<$setup>();)?
+            $(use super::<$teardown>();)?
+            $(use $top_level_imports::*;)?
 
             fn __internal_test_suite_setup() $($(-> ($($arg_type),*))?)? {
                 $($setup())?
             }
 
             fn __internal_test_suite_teardown() {
-                $(
-                    $teardown();
-                )?
+                $($teardown();)?
+            }
+
+            $(
+                mod $mod_name {
+                    use super::__internal_test_suite_setup;
+                    use super::__internal_test_suite_teardown;
+                    $(use $mod_imports::*;)?
+
+                    $(
+                        #[test]
+                        fn $test_name() {
+                            // Assign the return value of the setup function to the given names (if specified)
+                            $(let ($($($arg_name)*),*) =)? __internal_test_suite_setup();
+                            // Running test code
+                            $test
+                            // Running teardown function
+                            __internal_test_suite_teardown();
+                        }
+                    )*
+                }
+            )*
+        }
+    };
+    (
+        - name: $suite_name:ident
+        $(- setup: $setup:ident $(($($arg_type:ty),+))?)?
+        $(- teardown: $teardown:ident)?
+        $(use $top_level_imports:ident::*;)?
+        $(test $test_name:ident$(($($($arg_name:ident)*),+))? $test:block)*
+    ) => {
+        mod $suite_name {
+            $(use super::$setup;)?
+            $(use super::$teardown;)?
+            $(use $top_level_imports::*;)?
+
+            fn __internal_test_suite_setup() $($(-> ($($arg_type),*))?)? {
+                $($setup())?
+            }
+
+            fn __internal_test_suite_teardown() {
+                $($teardown();)?
             }
 
             $(
@@ -165,6 +197,10 @@ mod test {
     }
 
     fn teardown() {}
+
+    fn test_func_in_super() -> bool {
+        true
+    }
 
     test_suite! {
         - name: test_suite_full
@@ -191,8 +227,10 @@ mod test {
         - name: test_suite_no_setup
         - teardown: teardown
 
+        use super::*;
+
         test creates_the_test {
-            assert_eq!(1, 1);
+            assert!(test_func_in_super());
         }
     }
 
@@ -204,6 +242,24 @@ mod test {
             assert_eq!(nbr, 43);
             nbr = 100;
             assert_eq!(nbr, 100);
+        }
+    }
+
+    test_suite! {
+        - name: test_suite_with_mods
+
+        use super::*;
+
+        mod test_mod {
+            use super::*;
+
+            test test1 {
+                assert!(test_func_in_super())
+            }
+
+            test test2 {
+                assert_eq!(1, 1);
+            }
         }
     }
 }
