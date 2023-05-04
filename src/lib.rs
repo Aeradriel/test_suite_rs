@@ -122,8 +122,8 @@ macro_rules! test_suite {
         })*
     ) => {
         mod $suite_name {
-            $(use super::<$setup>();)?
-            $(use super::<$teardown>();)?
+            $(use super::$setup;)?
+            $(use super::$teardown;)?
             $(use $top_level_imports::*;)?
 
             fn __internal_test_suite_setup() $($(-> ($($arg_type),*))?)? {
@@ -259,6 +259,25 @@ mod test {
 
             test test2 {
                 assert_eq!(1, 1);
+            }
+        }
+    }
+
+    test_suite! {
+        - name: test_suite_with_mods_and_setup
+        - setup: setup(i32, &'static str)
+
+        use super::*;
+
+        mod test_mod {
+            use super::*;
+
+            test test1 {
+                assert!(test_func_in_super())
+            }
+
+            test test2(nbr, _string) {
+                assert_eq!(nbr, 43);
             }
         }
     }
