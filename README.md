@@ -43,5 +43,10 @@ mod test_mod {
         assert_eq!(&my_string, "my_string");
         teardown();
     }
+    
+    #[test]
+    fn should_return_false() {
+        assert!(true);
+    }
 }
 ```
