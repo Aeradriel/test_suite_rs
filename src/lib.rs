@@ -146,9 +146,12 @@ macro_rules! test_suite {
                             // Assign the return value of the setup function to the given names (if specified)
                             $(let ($($($arg_name)*),*) =)? __internal_test_suite_setup();
                             // Running test code
-                            $test
+                            let test_result = std::panic::catch_unwind(move || { $test });
                             // Running teardown function
-                            __internal_test_suite_teardown();
+                            let teardown_result = std::panic::catch_unwind(move || { __internal_test_suite_teardown(); });
+                            // Process test results
+                            test_result.unwrap();
+                            teardown_result.unwrap();
                         }
                     )*
                 }
@@ -181,9 +184,12 @@ macro_rules! test_suite {
                     // Assign the return value of the setup function to the given names (if specified)
                     $(let ($($($arg_name)*),*) =)? __internal_test_suite_setup();
                     // Running test code
-                    $test
+                    let test_result = std::panic::catch_unwind(move || { $test });
                     // Running teardown function
-                    __internal_test_suite_teardown();
+                    let teardown_result = std::panic::catch_unwind(move || { __internal_test_suite_teardown(); });
+                    // Process test results
+                    test_result.unwrap();
+                    teardown_result.unwrap();
                 }
             )*
         }
