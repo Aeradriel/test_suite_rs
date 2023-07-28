@@ -146,7 +146,7 @@ macro_rules! test_suite {
                             // Assign the return value of the setup function to the given names (if specified)
                             $(let ($($($arg_name)*),*) =)? __internal_test_suite_setup();
                             // Running test code
-                            let test_result = std::panic::catch_unwind(move || { $test });
+                            let test_result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| { $test }));
                             // Running teardown function
                             let teardown_result = std::panic::catch_unwind(move || { __internal_test_suite_teardown(); });
                             // Process test results
@@ -184,7 +184,7 @@ macro_rules! test_suite {
                     // Assign the return value of the setup function to the given names (if specified)
                     $(let ($($($arg_name)*),*) =)? __internal_test_suite_setup();
                     // Running test code
-                    let test_result = std::panic::catch_unwind(move || { $test });
+                    let test_result = std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| { $test }));
                     // Running teardown function
                     let teardown_result = std::panic::catch_unwind(move || { __internal_test_suite_teardown(); });
                     // Process test results
